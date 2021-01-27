@@ -51,13 +51,13 @@ public class ShoppingCartServiceTest {
 
         shoppingCartService.addProductToShoppingCart(shoppingCart.getId(), product);
 
-        assertEquals(1, shoppingCart.getProducts().size());
-        assertEquals(1, product.getShoppingCarts().size());
-        assertEquals(100.0f, shoppingCart.getTotalPrice());
-
         deleteInputedShoppingCartFromDatabase(shoppingCart.getId());
         deleteInputedCustomerFromDatabase(customer.getId());
         deleteInputedAddressFromDatabase(address.getId());
+
+        assertEquals(1, shoppingCart.getProducts().size());
+        assertEquals(1, product.getShoppingCarts().size());
+        assertEquals(100.0f, shoppingCart.getTotalPrice());
     }
 
     private void deleteInputedShoppingCartFromDatabase(Long shoppingCartId) {
