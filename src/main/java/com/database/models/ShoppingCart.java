@@ -21,7 +21,7 @@ public class ShoppingCart {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @ManyToOne()
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
@@ -36,10 +36,15 @@ public class ShoppingCart {
     public ShoppingCart() {
     }
 
-    public ShoppingCart(Date dateOfPurchase, float totalPrice, Customer customer) {
+    public ShoppingCart(Date dateOfPurchase, float totalPrice, Status status, Customer customer) {
         this.dateOfPurchase = dateOfPurchase;
         this.totalPrice = totalPrice;
+        this.status = status;
         this.customer = customer;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Date getDateOfPurchase() {

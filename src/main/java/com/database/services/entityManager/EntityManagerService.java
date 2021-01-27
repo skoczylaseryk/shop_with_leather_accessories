@@ -1,4 +1,4 @@
-package com.database.services.sessionManager;
+package com.database.services.entityManager;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

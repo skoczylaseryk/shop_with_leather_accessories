@@ -4,7 +4,6 @@ import javax.persistence.*;
 
 
 @Entity
-
 public class Property {
 
     @Id

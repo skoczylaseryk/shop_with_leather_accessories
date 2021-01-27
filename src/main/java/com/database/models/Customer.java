@@ -40,6 +40,10 @@ public class Customer {
         this.address = address;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

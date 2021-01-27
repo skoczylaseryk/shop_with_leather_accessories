@@ -3,7 +3,7 @@ package com.database.services;
 import com.database.models.Product;
 import com.database.models.Property;
 import com.database.services.exceptions.InvalidParameterProvidedException;
-import com.database.services.sessionManager.EntityManagerService;
+import com.database.services.entityManager.EntityManagerService;
 
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;

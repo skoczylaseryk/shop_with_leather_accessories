@@ -15,12 +15,12 @@ public class Address {
     private String zipCode;
     private String city;
     private String street;
-    private String homeNumber;
+    private int homeNumber;
 
     @OneToMany(mappedBy = "address", cascade = CascadeType.REMOVE)
     private Set<Customer> customers = new HashSet<>();
 
-    public Address(String country, String zipCode, String city, String street, String home_number) {
+    public Address(String country, String zipCode, String city, String street, int home_number) {
         this.country = country;
         this.zipCode = zipCode;
         this.city = city;
@@ -67,11 +67,11 @@ public class Address {
         this.street = street;
     }
 
-    public String getHomeNumber() {
+    public int getHomeNumber() {
         return homeNumber;
     }
 
-    public void setHomeNumber(String homeNumber) {
+    public void setHomeNumber(int homeNumber) {
         this.homeNumber = homeNumber;
     }
 

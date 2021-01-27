@@ -4,9 +4,8 @@ import com.database.models.Customer;
 import com.database.models.Product;
 import com.database.models.ShoppingCart;
 import com.database.services.exceptions.InvalidParameterProvidedException;
-import com.database.services.sessionManager.EntityManagerService;
+import com.database.services.entityManager.EntityManagerService;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
 import java.util.List;
@@ -52,9 +51,10 @@ public class ShoppingCartService extends EntityManagerService {
     public void addProductToShoppingCart(Long shoppingCartId, Product product) {
         ShoppingCart shoppingCartById = getShoppingCartById(shoppingCartId);
         shoppingCartById.getProducts().add(product);
+        product.getShoppingCarts().add(shoppingCartById);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
-        shoppingCartById.setTotalPrice(shoppingCartById.getTotalPrice() + product.getPriceBeforeDiscount());
+        shoppingCartById.setTotalPrice(shoppingCartById.getTotalPrice() + product.getPriceAfterDiscount());
         tx.commit();
     }
 

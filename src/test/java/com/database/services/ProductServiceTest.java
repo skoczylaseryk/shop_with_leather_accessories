@@ -126,11 +126,11 @@ public class ProductServiceTest {
         productService.addProductToDatabase(product);
         productService.addKeyValueProperty(product.getId(), "size", "M");
 
-        Query q = entityManager.createQuery("from Property p where p.property = ?1 AND p.result =?2", Property.class);
-        q.setParameter(1, "size");
-        q.setParameter(2, "M");
+        Query query = entityManager.createQuery("from Property p where p.property = ?1 AND p.result =?2", Property.class);
+        query.setParameter(1, "size");
+        query.setParameter(2, "M");
 
-        List resultList = q.getResultList();
+        List resultList = query.getResultList();
         EntityTransaction tx = entityManager.getTransaction();
 
         tx.begin();
@@ -241,7 +241,7 @@ public class ProductServiceTest {
         }
     }
 
-    private List<Product> getProductsFromDatabse(Product product){
+    private List<Product> getProductsFromDatabse(Product product) {
         Query query = entityManager
                 .createQuery(
                         "from Product p where p.description = ?1 AND p.discount = ?2 AND p.name = ?3 AND p.priceBeforeDiscount = ?4 AND p.productType = ?5 AND p.quantity = ?6 AND p.priceAfterDiscount = ?7", Product.class);
@@ -257,7 +257,6 @@ public class ProductServiceTest {
     }
 
     private void deleteInputedProductFromDatabase(Long productId) {
-
         EntityTransaction tx = entityManager.getTransaction();
         Product product = entityManager.find(Product.class, productId);
         tx.begin();
@@ -268,5 +267,7 @@ public class ProductServiceTest {
     @AfterSuite
     private void closeConnection() {
         productService.closeSession();
+        entityManager.close();
+        entityManagerFactory.close();
     }
 }

@@ -3,7 +3,9 @@ package com.database.services;
 import com.database.models.Address;
 import com.database.models.Customer;
 import com.database.services.exceptions.InvalidParameterProvidedException;
-import com.database.services.sessionManager.EntityManagerService;
+import com.database.services.exceptions.MoreThanOneFindedAddressException;
+import com.database.services.entityManager.EntityManagerService;
+import org.hibernate.Session;
 
 import javax.persistence.EntityTransaction;
 import javax.persistence.Query;
@@ -16,9 +18,32 @@ public class CustomerService extends EntityManagerService {
         if (customer == null) {
             throw new InvalidParameterProvidedException("customer shouldn't be null");
         }
+
+        Address address = customer.getAddress();
+
+        Query q = entityManager
+                .createQuery(
+                        "from Address a where a.city = ?1 AND a.country = ?2 AND a.homeNumber = ?3 AND a.street = ?4 AND a.zipCode = ?5", Address.class);
+        q.setParameter(1, address.getCity());
+        q.setParameter(2, address.getCountry());
+        q.setParameter(3, address.getHomeNumber());
+        q.setParameter(4, address.getStreet());
+        q.setParameter(5, address.getZipCode());
+
+        List<Address> resultList = q.getResultList();
+
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
-        entityManager.persist(customer);
+
+        if (resultList.size() == 0) {
+            entityManager.persist(customer);
+
+        } else if (resultList.size() == 1) {
+            customer.setAddress(resultList.get(0));
+            entityManager.persist(customer);
+        } else {
+            throw new MoreThanOneFindedAddressException("There are two or more equals addresses in database");
+        }
         customer.getAddress().getCustomers().add(customer);
         tx.commit();
     }
@@ -72,7 +97,7 @@ public class CustomerService extends EntityManagerService {
     }
 
     public void updateAddress(Long customerId, Address address) {
-        if (address == null || address.getCountry() == null || address.getCity() == null || address.getZipCode() == null || address.getStreet() == null || address.getHomeNumber() == null) {
+        if (address == null || address.getCountry() == null || address.getCity() == null || address.getZipCode() == null || address.getStreet() == null || address.getHomeNumber() == 0) {
             throw new InvalidParameterProvidedException("address shouldn't be null and address parameters shouldn't be null");
         }
 
@@ -92,10 +117,12 @@ public class CustomerService extends EntityManagerService {
         tx.begin();
         if (resultList.size() == 1) {
             customerById.setAddress(resultList.get(0));
+            resultList.get(0).getCustomers().add(customerById);
 
         } else {
             entityManager.persist(address);
             customerById.setAddress(address);
+            address.getCustomers().add(customerById);
         }
         tx.commit();
     }
