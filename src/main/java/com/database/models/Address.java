@@ -17,7 +17,7 @@ public class Address {
     private String street;
     private int homeNumber;
 
-    @OneToMany(mappedBy = "address", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "address")
     private Set<Customer> customers = new HashSet<>();
 
     public Address(String country, String zipCode, String city, String street, int home_number) {

@@ -34,6 +34,7 @@ public class ShoppingCartService extends EntityManagerService {
         ShoppingCart shoppingCartById = getShoppingCartById(shoppingCartId);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
+        shoppingCartById.getProducts().forEach(product -> product.getShoppingCarts().remove(shoppingCartById));
         entityManager.remove(shoppingCartById);
         tx.commit();
     }
@@ -41,9 +42,10 @@ public class ShoppingCartService extends EntityManagerService {
     public void removeProductFromShoppingCart(Long shoppingCartId, Product product) {
         ShoppingCart shoppingCartById = getShoppingCartById(shoppingCartId);
         EntityTransaction tx = entityManager.getTransaction();
-        shoppingCartById.setTotalPrice(shoppingCartById.getTotalPrice() - product.getPriceBeforeDiscount());
+        shoppingCartById.setTotalPrice(shoppingCartById.getTotalPrice() - product.getPriceAfterDiscount());
         tx.begin();
         shoppingCartById.getProducts().remove(product);
+        product.getShoppingCarts().remove(shoppingCartById);
         entityManager.merge(shoppingCartById);
         tx.commit();
     }

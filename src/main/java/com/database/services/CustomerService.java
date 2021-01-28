@@ -35,16 +35,17 @@ public class CustomerService extends EntityManagerService {
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
 
-        if (resultList.size() == 0) {
+        if(resultList.size()==0){
             entityManager.persist(customer);
-
-        } else if (resultList.size() == 1) {
+            customer.getAddress().getCustomers().add(customer);
+        }else if(resultList.size() ==1){
             customer.setAddress(resultList.get(0));
             entityManager.persist(customer);
-        } else {
+            address.getCustomers().add(customer);
+        }else{
             throw new MoreThanOneFindedAddressException("There are two or more equals addresses in database");
         }
-        customer.getAddress().getCustomers().add(customer);
+
         tx.commit();
     }
 
@@ -59,6 +60,7 @@ public class CustomerService extends EntityManagerService {
         Customer customerById = getCustomerById(customerId);
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
+        customerById.getAddress().getCustomers().remove(customerById);
         entityManager.remove(customerById);
         tx.commit();
     }

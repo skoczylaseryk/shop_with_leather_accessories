@@ -16,6 +16,7 @@ import javax.persistence.Persistence;
 import java.util.Date;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 public class ShoppingCartServiceTest {
     private ShoppingCartService shoppingCartService = new ShoppingCartService();
@@ -38,7 +39,7 @@ public class ShoppingCartServiceTest {
     }
 
     @Test
-    public void method_addProductToShoppingCart_ShoppingCartServiceShouldAddProductToShoppingCart() {
+    public void method_addProductToShoppingCart_desc_ShoppingCartServiceShouldAddProductToShoppingCart() {
         Address address = new Address("Poland", "30-091", "Cracow", "street", 3);
         Customer customer = new Customer("Patrick", "Smith", "xyz@test.com", new Date(11111999L), "password", false, address);
 
@@ -46,7 +47,7 @@ public class ShoppingCartServiceTest {
 
         shoppingCartService.addShoppingCartToDatabase(shoppingCart);
 
-        Product product = new Product("test1", 0, 100, 1, "testSHC", 1, ProductType.BAG);
+        Product product = new Product("test1", 0, 100, 1, "testSHC1", 1, ProductType.BAG);
         productService.addProductToDatabase(product);
 
         shoppingCartService.addProductToShoppingCart(shoppingCart.getId(), product);
@@ -58,6 +59,70 @@ public class ShoppingCartServiceTest {
         assertEquals(1, shoppingCart.getProducts().size());
         assertEquals(1, product.getShoppingCarts().size());
         assertEquals(100.0f, shoppingCart.getTotalPrice());
+    }
+
+    @Test
+    public void method_removeShoppingCartFromDatabase_desc_ShoppingCartServiceShouldRemoveEmptyShoppingCart() {
+        Address address = new Address("Poland", "30-091", "Cracow", "street", 3);
+        Customer customer = new Customer("Cris", "Smith", "xyz@test.com", new Date(11111999L), "password", false, address);
+
+        ShoppingCart shoppingCart = new ShoppingCart(new Date(11112020), 0, Status.IN_PROGRESS, customer);
+
+        shoppingCartService.addShoppingCartToDatabase(shoppingCart);
+        shoppingCartService.removeShoppingCartFromDatabase(shoppingCart.getId());
+
+        deleteInputedCustomerFromDatabase(customer.getId());
+        deleteInputedAddressFromDatabase(address.getId());
+
+        assertNull(entityManager.find(ShoppingCart.class, shoppingCart.getId()));
+    }
+
+    @Test
+    public void method_removeShoppingCartFromDatabase_desc_ShoppingCartServiceShouldRemoveShoppingCartWithProduct() {
+        Address address = new Address("Poland", "30-091", "Cracow", "street", 3);
+        Customer customer = new Customer("Mike", "Smith", "xyz@test.com", new Date(11111999L), "password", false, address);
+
+        ShoppingCart shoppingCart = new ShoppingCart(new Date(11112020), 0, Status.IN_PROGRESS, customer);
+
+        Product product = new Product("test1", 0, 100, 1, "testSHC2", 1, ProductType.BAG);
+        productService.addProductToDatabase(product);
+
+        shoppingCartService.addShoppingCartToDatabase(shoppingCart);
+        shoppingCartService.addProductToShoppingCart(shoppingCart.getId(), product);
+
+        shoppingCartService.removeShoppingCartFromDatabase(shoppingCart.getId());
+
+        deleteInputedCustomerFromDatabase(customer.getId());
+        deleteInputedAddressFromDatabase(address.getId());
+        deleteInputedProductFromDatabase(product.getId());
+
+        assertNull(entityManager.find(ShoppingCart.class, shoppingCart.getId()));
+        assertEquals(0, product.getShoppingCarts().size());
+    }
+
+    @Test
+    public void method_removeProductFromShoppingCart_desc_ShoppingCartServiceShouldRemoveProductFromShoppingCart() {
+        Address address = new Address("Poland", "30-091", "Cracow", "street", 3);
+        Customer customer = new Customer("Brandon", "Smith", "xyz@test.com", new Date(11111999L), "password", false, address);
+
+        ShoppingCart shoppingCart = new ShoppingCart(new Date(11112020), 0, Status.IN_PROGRESS, customer);
+
+        Product product = new Product("test1", 0, 100, 1, "testSHC3", 1, ProductType.BAG);
+        productService.addProductToDatabase(product);
+
+        shoppingCartService.addShoppingCartToDatabase(shoppingCart);
+
+        shoppingCartService.addProductToShoppingCart(shoppingCart.getId(), product);
+        shoppingCartService.removeProductFromShoppingCart(shoppingCart.getId(), product);
+
+        deleteInputedShoppingCartFromDatabase(shoppingCart.getId());
+        deleteInputedCustomerFromDatabase(customer.getId());
+        deleteInputedAddressFromDatabase(address.getId());
+        deleteInputedProductFromDatabase(product.getId());
+
+        assertEquals(0.0f,shoppingCart.getTotalPrice());
+        assertEquals(0, shoppingCart.getProducts().size());
+        assertEquals(0, product.getShoppingCarts().size());
     }
 
     private void deleteInputedShoppingCartFromDatabase(Long shoppingCartId) {
@@ -81,6 +146,14 @@ public class ShoppingCartServiceTest {
         Customer customer = entityManager.find(Customer.class, customerId);
         tx.begin();
         entityManager.remove(customer);
+        tx.commit();
+    }
+
+    private void deleteInputedProductFromDatabase(Long productId) {
+        EntityTransaction tx = entityManager.getTransaction();
+        Product product = entityManager.find(Product.class, productId);
+        tx.begin();
+        entityManager.remove(product);
         tx.commit();
     }
 

@@ -87,6 +87,7 @@ public class ProductService extends EntityManagerService {
         EntityTransaction tx = entityManager.getTransaction();
         tx.begin();
         entityManager.remove(resultList.get(0));
+        productById.getProperties().remove(resultList.get(0));
         tx.commit();
 
     }

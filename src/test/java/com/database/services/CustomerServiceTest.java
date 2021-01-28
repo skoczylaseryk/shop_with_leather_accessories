@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNull;
 
 public class CustomerServiceTest {
     private CustomerService customerService = new CustomerService();
@@ -49,11 +50,25 @@ public class CustomerServiceTest {
         List<Customer> customers = findCustomers(customer);
         List<Address> addresses = findAddresses(address);
 
-        deleteAddressFromDatabase(address.getId());             //TODO test works but not clean after exec
+        deleteCustomerFromDatabase(customers.get(0).getId());
+        deleteAddressFromDatabase(addresses.get(0).getId());             //TODO test works but not clean after exec
 
         assertEquals(1, customers.size());
         assertEquals(1, addresses.size());
         assertEquals(1, address.getCustomers().size());
+    }
+
+    @Test
+    public void method_removeCustomerFromDatabase_CustomerServiceShouldRemoveCustomerFromDatabaseAndUpdateAddressSetOfCustomers(){
+        Address address = new Address("Poland", "30-091", "Cracow", "street", 3);
+
+        Customer customer = new Customer("Eric", "Smith", "xyz@test.com", new Date(11111999L), "password", false, address);
+        customerService.addCustomerToDatabase(customer);
+
+        customerService.removeCustomerFromDatabase(customer.getId());
+
+        assertNull(entityManager.find(Customer.class,customer.getId()));
+        assertEquals(0,address.getCustomers().size());
     }
 
     private List<Customer> findCustomers(Customer customer) {
@@ -89,6 +104,14 @@ public class CustomerServiceTest {
         Address address = entityManager.find(Address.class, addressId);
         tx.begin();
         entityManager.remove(address);
+        tx.commit();
+    }
+
+    private void deleteCustomerFromDatabase(Long customerId) {
+        EntityTransaction tx = entityManager.getTransaction();
+        Customer customer = entityManager.find(Customer.class, customerId);
+        tx.begin();
+        entityManager.remove(customer);
         tx.commit();
     }
 

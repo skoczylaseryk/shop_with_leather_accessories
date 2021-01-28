@@ -8,6 +8,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.Test;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -61,13 +62,13 @@ public class ProductServiceTest {
 
         List<Product> products = getProductsFromDatabse(product);
 
-        Query q2 = entityManager.createQuery("from Property p where p.product = ?1", Property.class);
-        q2.setParameter(1, product);
+        Query query = entityManager.createQuery("from Property p where p.product = ?1", Property.class);
+        query.setParameter(1, product);
 
-        List resultList2 = q2.getResultList();
+        List properties = query.getResultList();
 
         assertEquals(0, products.size());
-        assertEquals(0, resultList2.size());
+        assertEquals(0, properties.size());
     }
 
     @Test
@@ -140,6 +141,7 @@ public class ProductServiceTest {
         deleteInputedProductFromDatabase(product.getId());
 
         assertEquals(1, resultList.size());
+        assertEquals(1, product.getProperties().size());
     }
 
     @Test
@@ -199,6 +201,7 @@ public class ProductServiceTest {
         deleteInputedProductFromDatabase(product.getId());
 
         assertEquals(0, resultList.size());
+        assertEquals(0, product.getProperties().size());
     }
 
     @Test
